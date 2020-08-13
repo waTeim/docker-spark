@@ -1,4 +1,4 @@
-FROM debian:stretch
+FROM python:3.7.3-stretch
 MAINTAINER Getty Images "https://github.com/gettyimages"
 
 ENV ELASTICSEARCH_HADOOP_VERSION 6.6.1
@@ -20,10 +20,7 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 RUN apt-get update \
- && apt-get install -y curl unzip \
-    python3 python3-setuptools \
- && ln -s /usr/bin/python3 /usr/bin/python \
- && easy_install3 pip py4j \
+ && apt-get install -y curl unzip llvm-3.8 llvm-3.8-dev \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
@@ -63,11 +60,15 @@ RUN curl -sL --retry 3 \
  && mv /usr/$SPARK_PACKAGE $SPARK_HOME \
  && chown -R root:root $SPARK_HOME
 
+ENV LLVM_CONFIG_PATH /usr/bin/llvm-config-3.8
+RUN pip install --upgrade pip
+RUN pip install llvmlite
+RUN pip install numba
+RUN pip install pyts
 RUN pip install python-dateutil
 RUN pip install kafka-python
 RUN pip install kafka-utils
 RUN pip install pyspark
-RUN pip install numpy
 RUN pip install h5py
 
 WORKDIR $SPARK_HOME
